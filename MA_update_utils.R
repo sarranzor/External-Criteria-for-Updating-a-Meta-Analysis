@@ -1,108 +1,108 @@
 ## Paquetes de apoyo necesarios ##
 # install.packages("metafor") # Si no se tuviera el paquete instalado
-library(metafor) # Se usa para calcular la varianza de la estimaciÛn combinada
+library(metafor) # Se usa para calcular la varianza de la estimaci√≥n combinada
 
-## -power.ma-       FunciÛn para el c·lculo de la potencia para un contraste unilateral derecho ##
+## -power.ma-       Funci√≥n para el c√°lculo de la potencia para un contraste unilateral derecho ##
 
 # Argumentos #
-# -ES-          Columna de un data frame con los tamaÒos del efecto de cada estudio (Para metafor)
+# -ES-          Columna de un data frame con los tama√±os del efecto de cada estudio (Para metafor)
 # -var-         Columna de un data frame con las varianzas de cada estudio (Para metafor)
 # -data-    Data frame con los datos (TEs y varianzas) (Para metafor)
-# -method-      MÈtodo de estimaciÛn de tau^2 (Para metafor). Los cÛdigos m·s comunes son (ejecute ?rma.uni para todos los cÛdigos):
+# -method-      M√©todo de estimaci√≥n de tau^2 (Para metafor). Los c√≥digos m√°s comunes son (ejecute ?rma.uni para todos los c√≥digos):
   # -"FE"-        (Efecto fijo. No se estima tau^2)
-  # -"REML"-      (M·xima Verosimilitud Restringida). Por defecto
-# -theta-   TE paramÈtrico alternativo. Por defecto se calcula la potencia para los puntos de corte cl·sicos propuestos por Cohen (0.2, 0.5, 0.8) y siempre se ofrecen estos valores a mayores.
-# -alpha-   Nivel de significaciÛn. Por defecto = 0.05
+  # -"REML"-      (M√°xima Verosimilitud Restringida). Por defecto
+# -theta-   TE param√©trico alternativo. Por defecto se calcula la potencia para los puntos de corte cl√°sicos propuestos por Cohen (0.2, 0.5, 0.8) y siempre se ofrecen estos valores a mayores.
+# -alpha-   Nivel de significaci√≥n. Por defecto = 0.05
 
-# ProgramaciÛn de la funciÛn #
+# Programaci√≥n de la funci√≥n #
 power.ma <- function(ES, var, data, method="REML", theta=NULL, alpha=0.05) {
   
-  # Vector de tamaÒos del efecto alternativos ordenados
+  # Vector de tama√±os del efecto alternativos ordenados
   theta <- sort(c(theta, 0.2, 0.5, 0.8))
   theta <- theta[!duplicated(theta)] # Se eliminan los duplicados si los hubiere
   
-  # C·lculo del error tÌpico
+  # C√°lculo del error t√≠pico
   ma <- rma.uni(yi=es, vi=var, data=data, method=method, weighted=T)
-  SE <- ma$se # Valor del error tÌpico
+  SE <- ma$se # Valor del error t√≠pico
   
-  # TamaÒo del efecto mÌnimo para alcanzar significaciÛn estadÌstica
+  # Tama√±o del efecto m√≠nimo para alcanzar significaci√≥n estad√≠stica
   ES.alpha <- qnorm(1 - alpha) * SE
   
-  # C·lculo final de la potencia
+  # C√°lculo final de la potencia
   power <- 1 - pnorm((ES.alpha - theta)/SE)
   
-  # Retorno de la funciÛn
+  # Retorno de la funci√≥n
   print(data.frame(ES = theta,
                    Power = power))
 } 
 
 
-## -range.CI-       FunciÛn para el c·lculo de la amplitud del IC de la estimaciÛn combinada del TE ##
+## -range.CI-       Funci√≥n para el c√°lculo de la amplitud del IC de la estimaci√≥n combinada del TE ##
 
 # Argumentos #
-# -ES-          Columna de un data frame con los tamaÒos del efecto de cada estudio (Para metafor)
+# -ES-          Columna de un data frame con los tama√±os del efecto de cada estudio (Para metafor)
 # -var-         Columna de un data frame con las varianzas de cada estudio (Para metafor)
 # -data-    Data frame con los datos (TEs y varianzas) (Para metafor)
-# -method-      MÈtodo de estimaciÛn de tau^2 (Para metafor). Los cÛdigos m·s comunes son (ejecute ?rma.uni para todos los cÛdigos):
+# -method-      M√©todo de estimaci√≥n de tau^2 (Para metafor). Los c√≥digos m√°s comunes son (ejecute ?rma.uni para todos los c√≥digos):
   # -"FE"-        (Efecto fijo. No se estima tau^2)
-  # -"REML"-      (M·xima Verosimilitud Restringida). Por defecto
-# -alpha-   Nivel de significaciÛn. Por defecto = 0.05
+  # -"REML"-      (M√°xima Verosimilitud Restringida). Por defecto
+# -alpha-   Nivel de significaci√≥n. Por defecto = 0.05
 
 range.CI <- function(ES, var, data, method="REML", alpha=0.05) {
   
-  # C·lculo del error tÌpico
+  # C√°lculo del error t√≠pico
   ma <- rma.uni(yi=ES, vi=var, data=data, method=method, weighted=T)
-  SE <- ma$se # Valor del error tÌpico
+  SE <- ma$se # Valor del error t√≠pico
   
-  # C·lculo de la amplitud
+  # C√°lculo de la amplitud
   range <- 2 * SE * abs(qnorm(1 - alpha/2))
   
-  # Retorno de la funciÛn
+  # Retorno de la funci√≥n
   print(range)
 }
 
 
-## -studies.power-  FunciÛn para el c·lculo prospectivo del n˙mero de estudios/sujetos necesarios para alcanzar una determinada potencia ##
+## -studies.power-  Funci√≥n para el c√°lculo prospectivo del n√∫mero de estudios/sujetos necesarios para alcanzar una determinada potencia ##
 
 # Argumentos #
-# -ES-          Columna de un data frame con los tamaÒos del efecto de cada estudio (Para metafor)
+# -ES-          Columna de un data frame con los tama√±os del efecto de cada estudio (Para metafor)
 # -var-         Columna de un data frame con las varianzas de cada estudio (Para metafor)
 # -data-    Data frame con los datos (TEs y varianzas) (Para metafor)
-# -method-      MÈtodo de estimaciÛn de tau^2 (Para metafor). Los cÛdigos m·s comunes son (ejecute ?rma.uni para todos los cÛdigos):
+# -method-      M√©todo de estimaci√≥n de tau^2 (Para metafor). Los c√≥digos m√°s comunes son (ejecute ?rma.uni para todos los c√≥digos):
   # -"FE"-        (Efecto fijo. No se estima tau^2)
-  # -"REML"-      (M·xima Verosimilitud Restringida). Por defecto
-# -theta-   TE paramÈtrico alternativo. Por defecto se calcula la potencia para los puntos de corte cl·sicos propuestos por Cohen (0.2, 0.5, 0.8) y siempre se ofrecen estos valores a mayores.
-# -alpha-   Nivel de significaciÛn. Por defecto = 0.05
+  # -"REML"-      (M√°xima Verosimilitud Restringida). Por defecto
+# -theta-   TE param√©trico alternativo. Por defecto se calcula la potencia para los puntos de corte cl√°sicos propuestos por Cohen (0.2, 0.5, 0.8) y siempre se ofrecen estos valores a mayores.
+# -alpha-   Nivel de significaci√≥n. Por defecto = 0.05
 # -power-   Valor de potencia que se desea alcanzar.
-# -plot.limit-  Total de estudios que se desea estimar para el gr·fico. Por defecto = 50
+# -plot.limit-  Total de estudios que se desea estimar para el gr√°fico. Por defecto = 50
 
 studies.power <- function(ES, var, data, method="REML", theta=NULL, alpha=0.05, power, plot.limit=50) {
   
-  # Vector de tamaÒos del efecto alternativos ordenados
+  # Vector de tama√±os del efecto alternativos ordenados
   theta <- sort(c(theta, 0.2, 0.5, 0.8))
   theta <- theta[!duplicated(theta)] # Se eliminan los duplicados si los hubiere
   
-  # C·lculo de los datos del estudio original
+  # C√°lculo de los datos del estudio original
   ma <- rma.uni(yi=es, vi=var, data=data, method=method, weighted=T)
-  SE_k <- ma$se # Valor del error tÌpico original
+  SE_k <- ma$se # Valor del error t√≠pico original
   
   W_k <- 1/SE_k^2 # Peso total de los estudios originales
   
   w.mean_k <- W_k/length(data$es) # Peso medio de los estudios originales
   
-  # C·lculo del error tÌpico de los k+j estudios
+  # C√°lculo del error t√≠pico de los k+j estudios
   SE_kj <- theta/(qnorm(1 - alpha) - qnorm(1 - power))
   
-  # C·lculo del peso de los k+j estudios
+  # C√°lculo del peso de los k+j estudios
   W_kj <- 1/SE_kj^2
   
-  # C·lculo del peso de los j estudios
+  # C√°lculo del peso de los j estudios
   W_j <- W_kj - W_k
   
-  # C·lculo de la varianza de los j estudios
+  # C√°lculo de la varianza de los j estudios
   var_j <- 1/W_j
   
-  # C·lculo del tamaÒo muestral estimado (sÛlo si method = EF)
+  # C√°lculo del tama√±o muestral estimado (s√≥lo si method = EF)
   if (method == "FE") {
     Subjets <- 1:length(theta)
     for (i in 1:length(Subjets)) {
@@ -110,10 +110,10 @@ studies.power <- function(ES, var, data, method="REML", theta=NULL, alpha=0.05, 
     }
   }
   
-  # C·lculo de los estudios estimados
+  # C√°lculo de los estudios estimados
   Studies <- ceiling(W_j/w.mean_k)
   
-  # C·lculo de la potence estudio a estudio (para el gr·fico)
+  # C√°lculo de la potence estudio a estudio (para el gr√°fico)
   # Data frame para contener los datos
   data.plot <- data.frame(km = 0:(plot.limit-1))
   
@@ -126,17 +126,17 @@ studies.power <- function(ES, var, data, method="REML", theta=NULL, alpha=0.05, 
     
     # Bucle
     repeat {
-      # ActualizaciÛn del contador
+      # Actualizaci√≥n del contador
       meter <- meter + 1
       
-      # Re-c·lculo del error tÌpico con los k+j estudios
+      # Re-c√°lculo del error t√≠pico con los k+j estudios
       Wkj <- (1/SE_k^2) + (meter * w.mean_k)
       SEkj <- sqrt(1/Wkj)
       
-      # Re-c·lculo de la potencia
+      # Re-c√°lculo de la potencia
       powerkj <- 1 - pnorm(((qnorm(1 - alpha) * SEkj) - theta[i])/SEkj)
       
-      # AsignaciÛn de la potencia al vector
+      # Asignaci√≥n de la potencia al vector
       c[meter] <- powerkj
       
       # Cierre del bucle
@@ -144,7 +144,7 @@ studies.power <- function(ES, var, data, method="REML", theta=NULL, alpha=0.05, 
         break
     }
     
-    # UniÛn del nuevo vector al data frame
+    # Uni√≥n del nuevo vector al data frame
     data.plot <- cbind(data.plot, c)
   }
   
@@ -152,16 +152,16 @@ studies.power <- function(ES, var, data, method="REML", theta=NULL, alpha=0.05, 
   cnames <- c("km", paste("ES=", theta, sep=""))
   colnames(data.plot) <- cnames
   
-  # CreaciÛn del gr·fico (Primera lÌnea)
+  # Creaci√≥n del gr√°fico (Primera l√≠nea)
   plot(x=data.plot[,1], y=data.plot[,2], 
        type="l", lwd = 2,
-       xlab = "N˙mero de estudios", ylab = "Potencia",
+       xlab = "N√∫mero de estudios", ylab = "Potencia",
        ylim=c(min(data.plot[,2]),max(data.plot[,ncol(data.plot)])), col=2)
-  # Siguiente lÌneas
+  # Siguiente l√≠neas
   for (i in 3:ncol(data.plot)) {
     lines(x=data.plot[,1], y=data.plot[,i], col=i, lwd=2, type="l")
   }
-  # LÌneas verticales para el n˙mero de estudios que alcanzan la potencia introducida
+  # L√≠neas verticales para el n√∫mero de estudios que alcanzan la potencia introducida
   for (i in 1:length(cnames)) {
     abline(v=Studies[i], col=(i+1))
   }
@@ -173,7 +173,7 @@ studies.power <- function(ES, var, data, method="REML", theta=NULL, alpha=0.05, 
          col=c(2:ncol(data.plot)),
          lwd=2)
   
-  # Retorno de la funciÛn (para method = FE)
+  # Retorno de la funci√≥n (para method = FE)
   if (method == "FE"){
     results <- list(Subjets = data.frame(ES = theta,
                                          Subjets = Subjets),
@@ -196,47 +196,47 @@ studies.power <- function(ES, var, data, method="REML", theta=NULL, alpha=0.05, 
 }
 
 
-## -studies.range- FunciÛn para el c·lculo prospectivo del n˙mero de estudios/sujetos necesarios para alcanzar una determinada amplitud del IC ##
+## -studies.range- Funci√≥n para el c√°lculo prospectivo del n√∫mero de estudios/sujetos necesarios para alcanzar una determinada amplitud del IC ##
 
 # Argumentos #
-# -ES-          Columna de un data frame con los tamaÒos del efecto de cada estudio (Para metafor)
+# -ES-          Columna de un data frame con los tama√±os del efecto de cada estudio (Para metafor)
 # -var-         Columna de un data frame con las varianzas de cada estudio (Para metafor)
 # -data-    Data frame con los datos (TEs y varianzas) (Para metafor)
-# -method-      MÈtodo de estimaciÛn de tau^2 (Para metafor). Los cÛdigos m·s comunes son (ejecute ?rma.uni para todos los cÛdigos):
+# -method-      M√©todo de estimaci√≥n de tau^2 (Para metafor). Los c√≥digos m√°s comunes son (ejecute ?rma.uni para todos los c√≥digos):
   # -"FE"-        (Efecto fijo. No se estima tau^2)
-  # -"REML"-      (M·xima Verosimilitud Restringida). Por defecto
-# -alpha-   Nivel de significaciÛn. Por defecto = 0.05
+  # -"REML"-      (M√°xima Verosimilitud Restringida). Por defecto
+# -alpha-   Nivel de significaci√≥n. Por defecto = 0.05
 # -range-   Valor de amplitud del IC que se desea alcanzar.
-# -theta-   TE paramÈtrico alternativo (Solo necesario si method="FE" y metric="SMD". Por defecto se calcula la potencia para los puntos de corte cl·sicos propuestos por Cohen (0.2, 0.5, 0.8) y siempre se ofrecen estos valores a mayores.
-# -plot.limit-  Total de estudios que se desea estimar para el gr·fico. Por defecto = 50
+# -theta-   TE param√©trico alternativo (Solo necesario si method="FE" y metric="SMD". Por defecto se calcula la potencia para los puntos de corte cl√°sicos propuestos por Cohen (0.2, 0.5, 0.8) y siempre se ofrecen estos valores a mayores.
+# -plot.limit-  Total de estudios que se desea estimar para el gr√°fico. Por defecto = 50
 
 studies.range <- function(ES, var, data, method="REML", alpha=0.05, range, theta=NULL, plot.limit=50) {
   
-  # Vector de tamaÒos del efecto alternativos ordenados (Solo se usa si method="FE" y metric="SMD")
+  # Vector de tama√±os del efecto alternativos ordenados (Solo se usa si method="FE" y metric="SMD")
   es <- sort(c(theta, 0.2, 0.5, 0.8))
   es <- es[!duplicated(es)] # Se eliminan los duplicados si los hubiere
   
-  # C·lculo de los datos del estudio original
+  # C√°lculo de los datos del estudio original
   ma <- rma.uni(yi=ES, vi=var, data=data, method=method, weighted=T)
-  SE_k <- ma$se # Valor del error tÌpico original
+  SE_k <- ma$se # Valor del error t√≠pico original
   
   W_k <- 1/SE_k^2 # Peso total de los estudios originales
   
   w.mean_k <- W_k/length(data$ES) # Peso medio de los estudios originales
   
-  # C·lculo del error tÌpico de los k+j estudios
+  # C√°lculo del error t√≠pico de los k+j estudios
   SE_kj <- range/(2 * abs(qnorm(1 - alpha/2)))
   
-  # C·lculo del peso de los k+j estudios
+  # C√°lculo del peso de los k+j estudios
   W_kj <- 1/SE_kj^2
   
-  # C·lculo del peso de los j estudios
+  # C√°lculo del peso de los j estudios
   W_j <- W_kj - W_k
   
-  # C·lculo de la varianza de los j estudios
+  # C√°lculo de la varianza de los j estudios
   var_j <- 1/W_j
   
-  # C·lculo del tamaÒo muestral estimado (solo para method="FE")
+  # C√°lculo del tama√±o muestral estimado (solo para method="FE")
   if (method == "FE") {
     Subjets <- 1:length(es)
     for (i in 1:length(Subjets)) {
@@ -244,11 +244,11 @@ studies.range <- function(ES, var, data, method="REML", alpha=0.05, range, theta
     }
   }
   
-  # C·lculo de los estudios estimados
+  # C√°lculo de los estudios estimados
   Studies <- ceiling(W_j/w.mean_k)
   
-  # C·lculo de la amplitud estudio a estudio (para el gr·fico)
-  # Data frame que recoge la informaciÛn necesaria para el gr·fico (N∫ de estudios aÒadidos y la amplitud correspondiente)
+  # C√°lculo de la amplitud estudio a estudio (para el gr√°fico)
+  # Data frame que recoge la informaci√≥n necesaria para el gr√°fico (N¬∫ de estudios a√±adidos y la amplitud correspondiente)
   data.plot <- data.frame(km = 0,
                           range = range <- 2 * SE_k * abs(qnorm(1 - alpha/2))
   )
@@ -258,17 +258,17 @@ studies.range <- function(ES, var, data, method="REML", alpha=0.05, range, theta
   
   # Bucle
   repeat {
-    # ActualizaciÛn del contador
+    # Actualizaci√≥n del contador
     meter <- meter + 1
     
-    # Re-c·lculo del error tÌpico con los k+j estudios
+    # Re-c√°lculo del error t√≠pico con los k+j estudios
     Wkj <- (1/SE_k^2) + (meter * w.mean_k)
     SEkj <- sqrt(1/Wkj)
     
-    # Re-c·lculo de la amplitud
+    # Re-c√°lculo de la amplitud
     rangekj <- 2 * SEkj * abs(qnorm(1 - alpha/2))
     
-    # AsignaciÛn de los nuevos datos al data frame
+    # Asignaci√≥n de los nuevos datos al data frame
     data.plot <- rbind(data.plot, c(meter, rangekj))
     
     # Cierre del bucle
@@ -276,12 +276,12 @@ studies.range <- function(ES, var, data, method="REML", alpha=0.05, range, theta
       break
   }
   
-  # Gr·fico
-  plot(data.plot, type="l", xlab = "N˙mero de estudios", ylab = "Amplitud", lwd = 2)
+  # Gr√°fico
+  plot(data.plot, type="l", xlab = "N√∫mero de estudios", ylab = "Amplitud", lwd = 2)
   abline(v = Studies)
   
   
-  # Retorno de la funciÛn (para method = FE)
+  # Retorno de la funci√≥n (para method = FE)
   if (method == "FE"){
     if (metric == "SMD"){
       results <- list(Subjets = data.frame(ES = es,
